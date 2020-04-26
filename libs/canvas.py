@@ -163,7 +163,21 @@ class Canvas(QWidget):
                 #     return
                 # else:
                 # print("meiyou chujie")
-                self.boundedMoveVertex(pos)
+                if self.selectedShape.isRotated:
+                    if Qt.ControlModifier & ev.modifiers():
+                        # print("rotate")
+                        self.boundedRotateShape(pos)
+                    elif Qt.AltModifier & ev.modifiers():
+                        # print("resize")
+                        self.boundedResizeShape(pos)
+                    elif Qt.MetaModifier & ev.modifiers():
+                        # print("move")
+                        self.boundedMoveShape(self.selectedShape, pos)
+                    else:
+                        self.boundedMoveVertex(pos)
+                else:
+                    self.boundedMoveVertex(pos)
+
                 self.shapeMoved.emit()
                 self.repaint()
             elif self.selectedShape and self.prevPoint:
@@ -420,6 +434,43 @@ class Canvas(QWidget):
         x = (b2-b1)/(a1-a2)
         y = (a1*b2 - a2*b1)/(a1-a2)
         return QPointF(x,y)
+
+    def boundedResizeShape(self, pos):
+        # print("Moving Vertex")
+        index, shape = self.hVertex, self.hShape
+        point = shape[index]
+
+        if not self.canOutOfBounding and self.outOfPixmap(pos):
+            return
+            # pos = self.intersectionPoint(point, pos)
+
+        # print("index is %d" % index)
+        sindex = (index + 2) % 4
+        # get the other 3 points after transformed
+        p2, p3, p4 = self.getAdjointPoints(shape.direction, shape[sindex]-(pos - point), pos, index)
+
+        pcenter = (pos + p3) / 2
+        if self.canOutOfBounding and self.outOfPixmap(pcenter):
+            return
+        # if one pixal out of map , do nothing
+        if not self.canOutOfBounding and (self.outOfPixmap(p2) or
+                                          self.outOfPixmap(p3) or
+                                          self.outOfPixmap(p4)):
+            return
+
+        # move 4 pixal one by one
+        shape.moveVertexBy(index, pos - point)
+        lindex = (index + 1) % 4
+        rindex = (index + 3) % 4
+        shape[lindex] = p2
+        shape[sindex] = p3
+        shape[rindex] = p4
+        shape.close()
+
+        # calculate the height and weight, and show it
+        w = math.sqrt((p4.x() - p3.x()) ** 2 + (p4.y() - p3.y()) ** 2)
+        h = math.sqrt((p3.x() - p2.x()) ** 2 + (p3.y() - p2.y()) ** 2)
+        self.status.emit("width is %d, height is %d." % (w, h))
 
     def boundedRotateShape(self, pos):
         # print("Rotate Shape2")          
