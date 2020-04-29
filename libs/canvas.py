@@ -1,3 +1,4 @@
+from libs.grid import Grid
 
 try:
     from PyQt5.QtGui import *
@@ -73,6 +74,8 @@ class Canvas(QWidget):
         self.hideNormal = False
         self.canOutOfBounding = False
         self.showCenter = False
+        # grid
+        self.grid = Grid()
 
     def enterEvent(self, ev):
         self.overrideCursor(self._cursor)
@@ -617,6 +620,10 @@ class Canvas(QWidget):
         p.translate(self.offsetToCenter())
 
         p.drawPixmap(0, 0, self.pixmap)
+
+        # draw a grid
+        self.grid.paint(p)
+
         Shape.scale = self.scale
         for shape in self.shapes:
             if (shape.selected or not self._hideBackround) and self.isVisible(shape):
@@ -898,6 +905,7 @@ class Canvas(QWidget):
 
     def loadPixmap(self, pixmap):
         self.pixmap = pixmap
+        self.grid.setSize(self.pixmap.size())
         self.shapes = []
         self.repaint()
 
