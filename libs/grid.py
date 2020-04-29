@@ -8,7 +8,7 @@ from PyQt5.QtGui import QPen, QColor, QPainterPath
 
 
 class Grid(object):
-    def __init__(self, step=500):
+    def __init__(self, step=200):
         self.step = step
         self.size = None
         self.color = QColor(255, 255, 255)
