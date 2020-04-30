@@ -834,6 +834,30 @@ class Canvas(QWidget):
         elif key == Qt.Key_B:
             self.showCenter = not self.showCenter
             self.update()
+        elif key == Qt.Key_H\
+                and self.selectedShape\
+                and self.selectedShape.isRotated:
+            self.selectedShape.enlarge(-0.5, 0)
+            self.shapeMoved.emit()
+            self.repaint()
+        elif key == Qt.Key_J\
+                and self.selectedShape\
+                and self.selectedShape.isRotated:
+            self.selectedShape.enlarge(0.5, 0)
+            self.shapeMoved.emit()
+            self.repaint()
+        elif key == Qt.Key_K\
+                and self.selectedShape\
+                and self.selectedShape.isRotated:
+            self.selectedShape.enlarge(0, -0.5)
+            self.shapeMoved.emit()
+            self.repaint()
+        elif key == Qt.Key_L\
+                and self.selectedShape\
+                and self.selectedShape.isRotated:
+            self.selectedShape.enlarge(0, 0.5)
+            self.shapeMoved.emit()
+            self.repaint()
 
 
     def rotateOutOfBound(self, angle):

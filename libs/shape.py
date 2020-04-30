@@ -63,6 +63,35 @@ class Shape(object):
             # is used for drawing the pending line a different color.
             self.line_color = line_color
 
+    def enlarge(self, width, height):
+        w = math.sqrt((self.points[0].x() - self.points[1].x()) ** 2 +
+                      (self.points[0].y() - self.points[1].y()) ** 2)
+
+        h = math.sqrt((self.points[2].x() - self.points[1].x()) ** 2 +
+                      (self.points[2].y() - self.points[1].y()) ** 2)
+
+        w += width
+        h += height
+        angle = self.direction % math.pi
+        cx = self.center.x()
+        cy = self.center.y()
+
+        p0x, p0y = self.rotatePoint2(cx, cy, cx - w / 2, cy - h / 2, -angle)
+        p1x, p1y = self.rotatePoint2(cx, cy, cx + w / 2, cy - h / 2, -angle)
+        p2x, p2y = self.rotatePoint2(cx, cy, cx + w / 2, cy + h / 2, -angle)
+        p3x, p3y = self.rotatePoint2(cx, cy, cx - w / 2, cy + h / 2, -angle)
+
+        self.points = [QPointF(p0x, p0y), QPointF(p1x, p1y), QPointF(p2x, p2y), QPointF(p3x, p3y)]
+
+    def rotatePoint2(self, xc, yc, xp, yp, theta):
+        xoff = xp-xc
+        yoff = yp-yc
+
+        cosTheta = math.cos(theta)
+        sinTheta = math.sin(theta)
+        pResx = cosTheta * xoff + sinTheta * yoff
+        pResy = - sinTheta * xoff + cosTheta * yoff
+        return xc+pResx, yc+pResy
 
     def rotate(self, theta):
         for i, p in enumerate(self.points):
