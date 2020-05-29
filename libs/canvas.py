@@ -72,7 +72,7 @@ class Canvas(QWidget):
         self.canDrawRotatedRect = True
         self.hideRotated = False
         self.hideNormal = False
-        self.canOutOfBounding = False
+        self.canOutOfBounding = True
         self.showCenter = False
         # grid
         self.grid = Grid()
@@ -785,7 +785,8 @@ class Canvas(QWidget):
 
     def keyPressEvent(self, ev):
         key = ev.key()
-        
+        mods = ev.modifiers()
+
         if key == Qt.Key_Escape and self.current:
             print('ESC press')
             self.current = None
@@ -794,13 +795,33 @@ class Canvas(QWidget):
         elif key == Qt.Key_Return and self.canCloseShape():
             self.finalise()
         elif key == Qt.Key_Left and self.selectedShape:
-            self.moveOnePixel('Left')
+            if (Qt.AltModifier & mods) and self.selectedShape.isRotated:
+                self.selectedShape.enlarge(-0.5, 0)
+                self.shapeMoved.emit()
+                self.repaint()
+            else:
+                self.moveOnePixel('Left')
         elif key == Qt.Key_Right and self.selectedShape:
-            self.moveOnePixel('Right')
+            if (Qt.AltModifier & mods) and self.selectedShape.isRotated:
+                self.selectedShape.enlarge(0.5, 0)
+                self.shapeMoved.emit()
+                self.repaint()
+            else:
+                self.moveOnePixel('Right')
         elif key == Qt.Key_Up and self.selectedShape:
-            self.moveOnePixel('Up')
+            if (Qt.AltModifier & mods) and self.selectedShape.isRotated:
+                self.selectedShape.enlarge(0, 0.5)
+                self.shapeMoved.emit()
+                self.repaint()
+            else:
+                self.moveOnePixel('Up')
         elif key == Qt.Key_Down and self.selectedShape:
-            self.moveOnePixel('Down')
+            if (Qt.AltModifier & mods) and self.selectedShape.isRotated:
+                self.selectedShape.enlarge(0, -0.5)
+                self.shapeMoved.emit()
+                self.repaint()
+            else:
+                self.moveOnePixel('Down')
         elif key == Qt.Key_Z and self.selectedShape and\
              self.selectedShape.isRotated and not self.rotateOutOfBound(0.1):
             self.selectedShape.rotate(0.1)
